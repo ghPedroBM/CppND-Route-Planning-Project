@@ -63,7 +63,7 @@ bool RoutePlanner::CompareSumHG (RouteModel::Node* n1, RouteModel::Node* n2)
 {
   float n1_hg = (*n1).h_value + (*n1).g_value;
   float n2_hg = (*n2).h_value + (*n2).g_value;
-  return (n1_hg>n2_hg);
+  return (n1_hg<n2_hg);
 }
 
 // TODO 5: Complete the NextNode method to sort the open list and return the next node.
@@ -104,6 +104,7 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
       current_node = (*current_node).parent;
     }
     
+ 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
 }
@@ -123,14 +124,19 @@ void RoutePlanner::AStarSearch() {
     // TODO: Implement your solution here.
   
     current_node = start_node;
+    (*current_node).visited = true;
+    open_list.push_back(current_node);
+  
     while (open_list.size()>0) 
     {
-        AddNeighbors(current_node);
-        current_node = NextNode();
+      current_node = NextNode();
+       
+      if (current_node==end_node)
+      {
+        m_Model.path = ConstructFinalPath(current_node);  
+        return;
+      }
+      
+      AddNeighbors(current_node);
     }
-   if (current_node==end_node)
-   {
-       m_Model.path = ConstructFinalPath(current_node);  
-       return;
-   }
 }
